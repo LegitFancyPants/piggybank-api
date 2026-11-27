@@ -1,21 +1,23 @@
 import { supabase } from "../config/supabaseClient.js";
 
 export const GoalModel = {
-  async getAll() {
+  async getAll(deviceId) {
     const { data, error } = await supabase
       .from("savings_goals")
       .select("*")
+      .eq("device_id", deviceId)
       .order("id", { ascending: false });
 
     if (error) throw error;
     return data;
   },
 
-  async getById(id) {
+  async getById(id, deviceId) {
     const { data, error } = await supabase
       .from("savings_goals")
       .select("*")
       .eq("id", id)
+      .eq("device_id", deviceId)
       .single();
 
     if (error) {
@@ -36,11 +38,12 @@ export const GoalModel = {
     return data;
   },
 
-  async update(id, payload) {
+  async update(id, deviceId, payload) {
     const { data, error } = await supabase
       .from("savings_goals")
       .update(payload)
       .eq("id", id)
+      .eq("device_id", deviceId)
       .select()
       .single();
 
@@ -51,11 +54,12 @@ export const GoalModel = {
     return data;
   },
 
-  async remove(id) {
+  async remove(id, deviceId) {
     const { error } = await supabase
       .from("savings_goals")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("device_id", deviceId);
 
     if (error) throw error;
     return true;

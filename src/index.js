@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
+import { requireDeviceId } from "./middleware/deviceId.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,8 +19,8 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/transactions", transactionRoutes);
-app.use("/api/goals", goalRoutes);
+app.use("/api/transactions", requireDeviceId, transactionRoutes);
+app.use("/api/goals", requireDeviceId, goalRoutes);
 
 if (process.env.VERCEL !== "1") {
   app.listen(port, () => {

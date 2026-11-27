@@ -3,7 +3,7 @@ import { GoalModel } from "../models/goalModel.js";
 export const GoalController = {
   async getAll(req, res) {
     try {
-      const data = await GoalModel.getAll();
+      const data = await GoalModel.getAll(req.deviceId);
       res.status(200).json(data);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -13,7 +13,7 @@ export const GoalController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await GoalModel.getById(id);
+      const data = await GoalModel.getById(id, req.deviceId);
 
       if (!data) {
         return res.status(404).json({ error: "Savings goal not found" });
@@ -56,6 +56,7 @@ export const GoalController = {
       }
 
       const created = await GoalModel.create({
+        device_id: req.deviceId,
         name,
         target_amount: numericTarget,
         current_amount: numericCurrent,
@@ -73,6 +74,8 @@ export const GoalController = {
     try {
       const { id } = req.params;
       const payload = { ...req.body };
+      delete payload.id;
+      delete payload.device_id;
 
       if (payload.target_amount !== undefined) {
         const numericTarget = Number(payload.target_amount);
@@ -94,7 +97,7 @@ export const GoalController = {
         payload.current_amount = numericCurrent;
       }
 
-      const updated = await GoalModel.update(id, payload);
+      const updated = await GoalModel.update(id, req.deviceId, payload);
 
       if (!updated) {
         return res.status(404).json({ error: "Savings goal not found" });
@@ -109,7 +112,7 @@ export const GoalController = {
   async remove(req, res) {
     try {
       const { id } = req.params;
-      await GoalModel.remove(id);
+      await GoalModel.remove(id, req.deviceId);
       res.status(200).json({ message: "Savings goal deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });

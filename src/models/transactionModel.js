@@ -1,10 +1,11 @@
 import { supabase } from "../config/supabaseClient.js";
 
 export const TransactionModel = {
-  async getAll(type = null) {
+  async getAll(deviceId, type = null) {
     let query = supabase
       .from("transactions")
       .select("*")
+      .eq("device_id", deviceId)
       .order("id", { ascending: false });
 
     if (type === "income" || type === "expense") {
@@ -16,11 +17,12 @@ export const TransactionModel = {
     return data;
   },
 
-  async getById(id) {
+  async getById(id, deviceId) {
     const { data, error } = await supabase
       .from("transactions")
       .select("*")
       .eq("id", id)
+      .eq("device_id", deviceId)
       .single();
 
     if (error) {
@@ -41,11 +43,12 @@ export const TransactionModel = {
     return data;
   },
 
-  async update(id, payload) {
+  async update(id, deviceId, payload) {
     const { data, error } = await supabase
       .from("transactions")
       .update(payload)
       .eq("id", id)
+      .eq("device_id", deviceId)
       .select()
       .single();
 
@@ -56,11 +59,12 @@ export const TransactionModel = {
     return data;
   },
 
-  async remove(id) {
+  async remove(id, deviceId) {
     const { error } = await supabase
       .from("transactions")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("device_id", deviceId);
 
     if (error) throw error;
     return true;

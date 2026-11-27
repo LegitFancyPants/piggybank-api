@@ -4,7 +4,7 @@ export const TransactionController = {
   async getAll(req, res) {
     try {
       const { type } = req.query;
-      const data = await TransactionModel.getAll(type);
+      const data = await TransactionModel.getAll(req.deviceId, type);
       res.status(200).json(data);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -14,7 +14,7 @@ export const TransactionController = {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const data = await TransactionModel.getById(id);
+      const data = await TransactionModel.getById(id, req.deviceId);
 
       if (!data) {
         return res.status(404).json({ error: "Transaction not found" });
@@ -50,6 +50,7 @@ export const TransactionController = {
       }
 
       const created = await TransactionModel.create({
+        device_id: req.deviceId,
         title,
         amount: numericAmount,
         type,
@@ -68,6 +69,8 @@ export const TransactionController = {
     try {
       const { id } = req.params;
       const payload = { ...req.body };
+      delete payload.id;
+      delete payload.device_id;
 
       if (payload.amount !== undefined) {
         const numericAmount = Number(payload.amount);
@@ -77,7 +80,7 @@ export const TransactionController = {
         payload.amount = numericAmount;
       }
 
-      const updated = await TransactionModel.update(id, payload);
+      const updated = await TransactionModel.update(id, req.deviceId, payload);
 
       if (!updated) {
         return res.status(404).json({ error: "Transaction not found" });
@@ -92,7 +95,7 @@ export const TransactionController = {
   async remove(req, res) {
     try {
       const { id } = req.params;
-      await TransactionModel.remove(id);
+      await TransactionModel.remove(id, req.deviceId);
       res.status(200).json({ message: "Transaction deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
